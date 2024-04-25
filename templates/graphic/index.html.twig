@@ -2,40 +2,147 @@
 
 {% block title %}График метрики{% endblock %}
 
+{% block stylesheets %}
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            color: #FFF;
+        }
+    </style>
+{% endblock %}
+
 {% block javascripts %}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 {% block body %}
     <canvas id="myChart"></canvas>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <p>Посещения: <span id="visits"></span></p>
+            <p>Дата: <span id="date"></span></p>
+            {{ include('task/_form.html.twig') }}
+            <button class="btn btn-secondary close">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="modal-task" class="modal">
+        <div class="modal-content">
+            <p>Название: <span id="title"></span></p>
+            <p>Описание: <span id="description"></span></p>
+            <p>Дата постановки: <span id="start_date"></span></p>
+            <p>Крайний срок: <span id="end_date"></span></p>
+            <p>Награда: <span id="reward"></span></p>
+            <button class="btn btn-secondary close">Закрыть</button>
+        </div>
+    </div>
+
     <script>
-        const ctx = document.getElementById('myChart').getContext('2d');
-        var dateInterval = {{ dateInterval | json_encode | raw }};
-        const myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: dateInterval,
-            datasets: [
-            {
-                label: 'Посещения',
-                data: {{ totals | json_encode | raw }},
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1,
-            },
-            ],
-        },
-        options: {
-            scales: {
-            yAxes: [
+         const taskData = [
+            {% for task in needleTasks %}
                 {
-                ticks: {
-                    beginAtZero: true,
+                    x: '{{ task.start_date }}',
+                    y: {{ task.reward }},
+                    title: '{{ task.title }}',
+                    description: '{{ task.description }}',
+                    start_date: '{{ task.start_date }}',
+                    end_date: '{{ task.end_date }}',
                 },
-                },
-            ],
-            },
-        },
+            {% endfor %}
+        ];
+
+        const filteredTaskData = taskData.filter(task => {
+            return {{ dateInterval | json_encode | raw }}.includes(task.x);
         });
+
+        const handlePointClick = (selectedIndex, label) => {
+            if (label == 'Посещения') {
+                const selectedDate = myChart.data.labels[selectedIndex];
+                const selectedVisits = myChart.data.datasets[0].data[selectedIndex];
+
+                var selectedDateObject = new Date(selectedDate);
+                document.getElementById('task_start_date').value = selectedDateObject.toISOString().split('T')[0];
+
+                document.getElementById('visits').innerText = selectedVisits;
+                document.getElementById('date').innerText = selectedDate;
+                document.getElementById('modal').style.display = 'block';
+            } else if (label == 'Задача (Стоимость задачи)') {
+                const selectedTask = filteredTaskData[selectedIndex];
+                document.getElementById('title').innerText = selectedTask.title;
+                document.getElementById('description').innerText = selectedTask.description;
+                document.getElementById('start_date').innerText = selectedTask.start_date;
+                document.getElementById('end_date').innerText = selectedTask.end_date;
+                document.getElementById('reward').innerText = selectedTask.y;
+                document.getElementById('modal-task').style.display = 'block';
+            }
+        };
+
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const modal = document.querySelector('#modal');
+        const modalTask = document.querySelector('#modal-task');
+        const myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: 
+                    {{ dateInterval | json_encode | raw }}, 
+                datasets: [
+                    {
+                        label: 'Посещения',
+                        data: {{ totals | json_encode | raw }},
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                    },
+                    {
+                        label: 'Задача (Стоимость задачи)',
+                        data: filteredTaskData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                    },
+                ],
+            },
+            options: {
+                hoverRadius: 10,
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                        },
+                    }],
+                },
+                onClick: (e) => {
+                    var activePoints = myChart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, false);
+                    if (activePoints.length > 0) {
+                        const selectedIndex = activePoints[0].index;
+                        const label = myChart.data.datasets[activePoints[0].datasetIndex].label;
+                        handlePointClick(selectedIndex, label);
+                    }
+                },
+            },
+        });
+
+        modal.addEventListener('click', function(event) {
+            if (event.target.classList.contains('close')) {
+                modal.style.display = 'none';
+            }
+        });
+
+        modalTask.addEventListener('click', function(event) {
+        if (event.target.classList.contains('close')) {
+            modalTask.style.display = 'none';
+        }
+    });
     </script>
 {% endblock %}

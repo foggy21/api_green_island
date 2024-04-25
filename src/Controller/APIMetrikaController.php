@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Controller;
-use App\Entity\Metric;
 use App\Service\MetricFormaterService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -9,7 +8,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use GuzzleHttp\Client;
 
-#[Route('/api')]
+#[Route('/api_metrika')]
 class APIMetrikaController extends AbstractController
 {
     #[Route('/{startDate}&{endDate}', name:'api_metrika')]
