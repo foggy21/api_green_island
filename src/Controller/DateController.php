@@ -18,8 +18,7 @@ class DateController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) 
         {
-            $dates = $this->getDatesFromForm($form);
-            $dates = $dateFormater->formatDates($dates);
+            $dates = $dateFormater->getDatesFromForm($form);
             return $this->redirectToRoute('api_metrika',[
                 'startDate' => $dates['startDate'],
                 'endDate' => $dates['endDate'],
@@ -28,14 +27,5 @@ class DateController extends AbstractController
         return $this->render('date/index.html.twig', [
             'form' => $form,
         ]);
-    }
-
-
-    private function getDatesFromForm($form): array
-    {
-        return array(
-            'startDate' => $form->get('startDate')->getViewData(),
-            'endDate' => $form->get('endDate')->getViewData(),
-        );
     }
 }

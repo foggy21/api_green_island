@@ -1,0 +1,41 @@
+{% extends "base.html.twig" %}
+
+{% block title %}График метрики{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block body %}
+    <canvas id="myChart"></canvas>
+    <script>
+        const ctx = document.getElementById('myChart').getContext('2d');
+        var dateInterval = {{ dateInterval | json_encode | raw }};
+        const myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dateInterval,
+            datasets: [
+            {
+                label: 'Посещения',
+                data: {{ totals | json_encode | raw }},
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1,
+            },
+            ],
+        },
+        options: {
+            scales: {
+            yAxes: [
+                {
+                ticks: {
+                    beginAtZero: true,
+                },
+                },
+            ],
+            },
+        },
+        });
+    </script>
+{% endblock %}
