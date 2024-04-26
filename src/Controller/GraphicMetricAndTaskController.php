@@ -3,8 +3,7 @@
 namespace App\Controller;
 use App\Entity\Task;
 use App\Form\TaskType;
-use App\Repository\TaskRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\TaskService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,27 +14,13 @@ use Symfony\Component\Routing\Attribute\Route;
 class GraphicMetricAndTaskController extends AbstractController
 {
     #[Route('/', name:'app_graphic')]
-    public function index(Request $request, SessionInterface $session, TaskRepository $taskRepository, EntityManagerInterface $entityManager): Response
+    public function index(Request $request, SessionInterface $session, TaskService $taskService): Response
     {
         $metric = $session->get('session_metric');
         $dateInterval = $metric->getInterval();
         $totals = $metric->getTotals();
 
-        $needleTasks = [];
-        foreach($taskRepository->findAll() as $task)
-        {
-            if (in_array($task->getStartDate(), $dateInterval))
-            {
-                $needleTasks[] = 
-                [
-                    'title' => $task->getTitle(),
-                    'description' => $task->getDescription(),
-                    'start_date' => $task->getStartDate(),
-                    'end_date' => $task->getEndDate()->format('Y-m-d'),
-                    'reward' => $task->getReward()
-                ];
-            }
-        }
+        $needleTasks = $taskService->getNeedleTasksFromDates($dateInterval);
 
         $task = new Task();
         $form = $this->createForm(TaskType::class, $task);
@@ -43,8 +28,7 @@ class GraphicMetricAndTaskController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) 
         {
-            $entityManager->persist($task);
-            $entityManager->flush();
+            $taskService->save($task);
 
             return $this->redirectToRoute('app_bx24', [
                 'title' => $task->getTitle(),

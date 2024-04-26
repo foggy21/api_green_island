@@ -20,4 +20,13 @@ class TaskRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Task::class);
     }
+
+    public function findAllSortByStartDate(): array
+    {
+        return $this->createQueryBuilder('t')
+            ->orderBy('t.start_date', 'ASC')
+            ->getQuery()
+            ->execute();
+        ;
+    }
 }
