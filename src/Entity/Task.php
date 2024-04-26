@@ -21,7 +21,7 @@ class Task
     private ?string $description = null;
 
     #[ORM\Column]
-    private ?int $reward = null;
+    private ?int $result = null;
 
     #[ORM\Column(length: 255)]
     private ?string $start_date = null;
@@ -70,14 +70,14 @@ class Task
         return $this;
     }
 
-    public function getReward(): ?int
+    public function getResult(): ?int
     {
-        return $this->reward;
+        return $this->result;
     }
 
-    public function setReward(int $reward): static
+    public function setResult(int $result): static
     {
-        $this->reward = $reward;
+        $this->result = $result;
 
         return $this;
     }
