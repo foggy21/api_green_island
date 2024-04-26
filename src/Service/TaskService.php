@@ -35,7 +35,7 @@ class TaskService
                     'description' => $task->getDescription(),
                     'start_date' => $task->getStartDate(),
                     'end_date' => $task->getEndDate()->format('Y-m-d'),
-                    'reward' => $task->getReward()
+                    'result' => $task->getResult()
                 ];
             }
         }

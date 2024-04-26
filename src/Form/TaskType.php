@@ -18,7 +18,7 @@ class TaskType extends AbstractType
         $builder
             ->add('title')
             ->add('description')
-            ->add('reward')
+            ->add('result', HiddenType::class)
             ->add('start_date', HiddenType::class)
             ->add('end_date', null, [
                 'widget' => 'single_text',

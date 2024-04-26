@@ -37,27 +37,12 @@
         </div>
     </div>
 
-    <div id="modal-task" class="modal">
-        <div class="modal-content">
-            <p>Название: <span id="title"></span></p>
-            <p>Описание: <span id="description"></span></p>
-            <p>Дата постановки: <span id="start_date"></span></p>
-            <p>Крайний срок: <span id="end_date"></span></p>
-            <p>Награда: <span id="reward"></span></p>
-            <button class="btn btn-secondary close">Закрыть</button>
-        </div>
-    </div>
-
     <script>
          const taskData = [
             {% for task in needleTasks %}
                 {
                     x: '{{ task.start_date }}',
-                    y: {{ task.reward }},
-                    title: '{{ task.title }}',
-                    description: '{{ task.description }}',
-                    start_date: '{{ task.start_date }}',
-                    end_date: '{{ task.end_date }}',
+                    y: {{ task.result }},
                 },
             {% endfor %}
         ];
@@ -73,18 +58,16 @@
 
                 var selectedDateObject = new Date(selectedDate);
                 document.getElementById('task_start_date').value = selectedDateObject.toISOString().split('T')[0];
+                document.getElementById('task_result').value = 0;
+                console.log(document.getElementById('task_result'))
 
                 document.getElementById('visits').innerText = selectedVisits;
                 document.getElementById('date').innerText = selectedDate;
                 document.getElementById('modal').style.display = 'block';
             } else if (label == 'Задача (Стоимость задачи)') {
                 const selectedTask = filteredTaskData[selectedIndex];
-                document.getElementById('title').innerText = selectedTask.title;
-                document.getElementById('description').innerText = selectedTask.description;
-                document.getElementById('start_date').innerText = selectedTask.start_date;
-                document.getElementById('end_date').innerText = selectedTask.end_date;
-                document.getElementById('reward').innerText = selectedTask.y;
-                document.getElementById('modal-task').style.display = 'block';
+                let url = `https://gn-tst.ideavl.ru/company/personal/user/12601/tasks/task/view/${selectedTask.y}/`;
+                window.open(url, '_blank');
             }
         };
 
@@ -138,11 +121,5 @@
                 modal.style.display = 'none';
             }
         });
-
-        modalTask.addEventListener('click', function(event) {
-        if (event.target.classList.contains('close')) {
-            modalTask.style.display = 'none';
-        }
-    });
     </script>
 {% endblock %}

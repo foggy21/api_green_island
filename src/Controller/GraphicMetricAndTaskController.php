@@ -31,6 +31,7 @@ class GraphicMetricAndTaskController extends AbstractController
             $taskService->save($task);
 
             return $this->redirectToRoute('app_bx24', [
+                'id' => $task->getId(),
                 'title' => $task->getTitle(),
                 'description' => $task->getDescription(),
                 'responsible_id' => $task->getResponsible()->getId(),
